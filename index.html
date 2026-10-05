@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>森林进化论 · 13人局记分板</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6VH3WGCEB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-Q6VH3WGCEB');
+</script>
+
+<style>
+  :root{
+    --bg:#0b0f14;--panel:#111821;--panel2:#151e28;--panel3:#0f151d;--line:#263341;
+    --text:#eaf1f7;--muted:#8fa1b2;--subtle:#647485;--accent:#69d39a;--accent2:#7cb5ff;
+    --danger:#ff7b82;--warn:#f1c969;--draw:#c49cff;--ok:#6ee7a8;--shadow:0 18px 50px rgba(0,0,0,.28);
+    --r:18px;--r2:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:radial-gradient(circle at 15% 0%,#14202a 0,#0b0f14 38%,#080b10 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;min-height:100%}
+  body{padding:20px 18px 48px;position:relative;isolation:isolate}
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .app{max-width:1500px;margin:0 auto;position:relative;z-index:1}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  h1{font-size:22px;line-height:1.2;margin:0;font-weight:760;letter-spacing:.2px}
+  .subtitle{font-size:12px;color:var(--muted);margin-top:4px}
+  .statusrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .pill{padding:7px 10px;border-radius:999px;background:#121a23;border:1px solid var(--line);color:var(--muted);font-size:12px}
+  .pill.good{color:#a9f3c9;border-color:#275c44;background:#10261c}
+  .pill.bad{color:#ffb1b5;border-color:#60343a;background:#281619}
+
+  .layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}.sidebar{position:static!important}}
+  .sidebar{position:sticky;top:16px;align-self:start;display:flex;flex-direction:column;gap:14px}
+  .card{background-color:#111821;background-image:linear-gradient(180deg,rgba(255,255,255,.020),rgba(0,0,0,.055));border:1px solid rgba(119,147,170,.16);border-radius:var(--r);box-shadow:var(--shadow)}
+  .section{padding:16px}
+  .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .section-title h2{font-size:14px;margin:0;font-weight:700;letter-spacing:.3px}
+  .hint{font-size:11px;color:var(--subtle)}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}
+  select,input,textarea{width:100%;color:var(--text);background:#0c1219;border:1px solid #263442;border-radius:10px;padding:10px 11px;outline:none;transition:.18s}
+  select:focus,input:focus,textarea:focus{border-color:#4d8e71;box-shadow:0 0 0 3px rgba(71,155,114,.12)}
+  textarea{resize:vertical;min-height:118px;line-height:1.5}
+  .btn{border:1px solid #2a3948;background:#15202b;color:var(--text);border-radius:10px;padding:10px 12px;font-weight:650;transition:.18s}
+  .btn:hover{transform:translateY(-1px);border-color:#3c5266}
+  .btn.primary{background-color:#287b59;background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.08));border-color:#39986f;color:white}
+  .btn.danger{background:#2a171b;border-color:#5e3037;color:#ffb4b8}
+  .btn.ghost{background:transparent}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btnrow .btn{flex:1}
+
+  .quick-battle{display:grid;grid-template-columns:1fr 34px 1fr;gap:8px;align-items:end}
+  .arrow{height:41px;display:grid;place-items:center;color:#718394;font-size:18px}
+  .result-switch{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+  .result-btn{padding:10px 6px;border-radius:10px;border:1px solid #2c3b49;background:#101821;color:#b9c6d1;font-weight:800}
+  .result-btn.t:hover{border-color:#357a59;color:#99efbd}.result-btn.f:hover{border-color:#7a3a42;color:#ff9fa7}.result-btn.e:hover{border-color:#66508b;color:#d3baff}
+
+  .main{min-width:0}
+  .tabs{display:flex;gap:6px;padding:6px;background:#0d141c;border:1px solid #23303e;border-radius:14px;margin-bottom:14px;overflow:auto}
+  .tab{white-space:nowrap;border:0;background:transparent;color:#8798a8;padding:9px 13px;border-radius:10px;font-weight:700;font-size:13px}
+  .tab.active{background:#17232e;color:white;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+  .view{display:none}.view.active{display:block}
+
+  .hero{padding:18px;display:grid;grid-template-columns:1.25fr .75fr;gap:14px;margin-bottom:14px}
+  @media(max-width:760px){.hero{grid-template-columns:1fr}}
+  .hero-title{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .me-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .me-seat{font-size:34px;font-weight:820;letter-spacing:-1px}.me-card{font-size:17px;color:#c7d4df;font-weight:700}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .metric{padding:8px 10px;border-radius:10px;background:#0d141b;border:1px solid #21303d;font-size:12px;color:#9fb0bf}
+  .metric strong{color:white}
+  .solver-note{font-size:12px;line-height:1.55;color:#91a2b2}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .combat-card{padding:16px}
+  .combat-card h3{font-size:14px;margin:0 0 12px}
+  .bucket{display:grid;grid-template-columns:82px 1fr;gap:10px;align-items:start;padding:9px 0;border-top:1px solid rgba(115,140,160,.1)}
+  .bucket:first-of-type{border-top:0}
+  .bucket-name{font-size:12px;font-weight:750;padding-top:5px}.bucket.win .bucket-name{color:#78e3a7}.bucket.lose .bucket-name{color:#ff9299}.bucket.warn .bucket-name{color:#f1c969}.bucket.draw .bucket-name{color:#c9adff}.bucket.unknown .bucket-name{color:#a7b5c1}
+  .relation-safe{border-color:rgba(110,231,168,.24)}.relation-danger{border-color:rgba(255,123,130,.24)}.relation-dual{border-color:rgba(241,201,105,.26)}.relation-neutral{border-color:rgba(196,156,255,.18)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}.chip{min-width:34px;text-align:center;padding:5px 8px;border-radius:8px;background:#0d141b;border:1px solid #263442;font-size:12px;font-weight:700}
+  .chip.win{border-color:#2d664a;background:#10241a;color:#9de8bc}.chip.lose{border-color:#63343b;background:#26171a;color:#ffadb2}.chip.warn{border-color:#6c5a2f;background:#2a2415;color:#f5d982}.chip.draw{border-color:#5c4b7c;background:#201a2b;color:#d2bdff}.chip.unknown{color:#aab8c5}
+
+  .players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+  @media(max-width:1180px){.players{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media(max-width:650px){.players{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .player-card{padding:13px;border-radius:14px;background-color:#101820;background-image:linear-gradient(180deg,rgba(255,255,255,.018),rgba(0,0,0,.045));border:1px solid #21303c;min-height:112px;position:relative}
+  .player-card.me{border-color:#3a7d5c;box-shadow:inset 0 0 0 1px rgba(83,199,139,.12)}
+  .phead{display:flex;align-items:center;justify-content:space-between;gap:8px}.pnum{font-weight:820;font-size:15px}.badge{font-size:10px;border-radius:999px;padding:4px 7px;background:#101821;border:1px solid #283745;color:#8fa1b2}.badge.fixed{color:#a7f1c5;border-color:#34664c;background:#10231a}
+  .identity{margin-top:12px;font-size:18px;font-weight:800}.identity.uncertain{font-size:13px;color:#c1ced8;line-height:1.5;font-weight:650}
+  .smallprob{margin-top:8px;color:#728495;font-size:10px}
+  .prey-prob{margin-top:10px;padding-top:9px;border-top:1px solid rgba(115,140,160,.11)}
+  .prey-prob-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .prey-prob-label{font-size:10px;color:#7f91a1;font-weight:650;letter-spacing:.1px}
+  .prey-prob-value{font-size:13px;font-weight:820;letter-spacing:.1px;color:#9aa9b7;transition:color .22s ease}
+  .prey-prob-value.good{color:#78e3a7}.prey-prob-value.bad{color:#ff9299}.prey-prob-value.neutral{color:#9aa9b7}
+  .prey-scale{position:relative;height:6px;margin-top:7px;border-radius:999px;background:#1a2530;overflow:visible}
+  .prey-scale::after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#687888;opacity:.8;transform:translateX(-.5px);z-index:2}
+  .prey-fill{position:absolute;top:0;height:6px;border-radius:999px;min-width:0}
+  .prey-fill.good{background:#55c98a}.prey-fill.bad{background:#e66770}.prey-fill.neutral{background:#7d8a96}
+  .prey-scale-dot{position:absolute;top:50%;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);border:1.5px solid #d8e1e8;background:#84919d;z-index:3;box-shadow:0 0 0 2px rgba(13,20,27,.72)}
+  .prey-scale-dot.good{background:#69d39a}.prey-scale-dot.bad{background:#ff7b82}.prey-scale-dot.neutral{background:#84919d}
+  .prey-prob-note{margin-top:5px;font-size:9px;color:#607282;line-height:1.35}
+
+  .table-wrap{overflow:auto;border-radius:14px;border:1px solid #22313e;background:#0e151c}
+  table{border-collapse:separate;border-spacing:0;width:100%;min-width:950px;font-size:11px}
+  th,td{padding:7px 8px;text-align:center;border-right:1px solid rgba(80,104,124,.16);border-bottom:1px solid rgba(80,104,124,.14)}
+  th{position:sticky;top:0;background:#121b24;color:#9fb0be;font-weight:760;z-index:2}
+  th:first-child,td:first-child{position:sticky;left:0;z-index:3;background:#121b24;font-weight:800}
+  .cell-possible{color:#a7b4c0}.cell-no{color:#3b4854}.cell-fixed{background:#143322!important;color:#9df0bd;font-weight:800}.cell-prob{color:#d9e6ef;font-weight:700}
+  .match-win{background:#123021;color:#95e8b5}.match-lose{background:#31191d;color:#ffa5ab}.match-draw{background:#251c36;color:#d2bbff}.match-mixed{background:#1a222b;color:#a8b6c1}
+
+  .toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:0 0 10px;flex-wrap:wrap}.toolbar h2{font-size:15px;margin:0}.toolbar-right{display:flex;gap:8px;align-items:center}.micro{font-size:11px;color:var(--muted)}
+  .history{display:flex;flex-direction:column;gap:7px}.event{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid #243340;background:#101820;border-radius:11px}.event-index{font-size:11px;color:#667889}.event-main{font-size:13px;font-weight:700}.event-main span{color:#8192a1;font-weight:500;margin-left:7px}.event .x{border:0;background:transparent;color:#6f8190;font-size:18px;padding:4px 8px}.event .x:hover{color:#ff959c}
+  .empty{padding:34px;text-align:center;color:#687b8c;font-size:13px}
+
+  .rules{padding:18px;line-height:1.7;color:#b9c6d0}.rules h3{margin:18px 0 6px;font-size:14px;color:white}.rules h3:first-child{margin-top:0}.rule-box{padding:12px;border-radius:12px;background:#0c131a;border:1px solid #22303d;margin-top:10px}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#0b1118;border:1px solid #23313e;padding:2px 6px;border-radius:6px;color:#d7e3ec}
+
+  .toast{position:fixed;right:20px;bottom:20px;z-index:99;padding:11px 14px;background:#17232d;border:1px solid #304352;border-radius:11px;color:white;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.toast.error{border-color:#744048;background:#2b171b;color:#ffc0c4}
+  .loading{display:inline-flex;align-items:center;gap:7px}.dot{width:7px;height:7px;border-radius:50%;background:#65d39a;box-shadow:0 0 0 0 rgba(101,211,154,.5);animation:pulse 1.5s infinite}@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(101,211,154,0)}100%{box-shadow:0 0 0 0 rgba(101,211,154,0)}}
+  .footer{margin-top:18px;text-align:center;font-size:10px;color:#536473}
+  body.mystic-mode .card{background-color:#2a203b;border-color:rgba(182,145,236,.30);box-shadow:0 20px 50px rgba(10,6,22,.34)}
+  body.mystic-mode .pill{background-color:#21182f;border-color:#594679;color:#d8cbf7;box-shadow:none}
+  body.mystic-mode .pill.good{background-color:#2a2040;border-color:#8b6cd6;color:#efe6ff;box-shadow:none}
+  body.mystic-mode .pill.bad{background-color:#2b1c38;border-color:#8b5fb2;color:#f3d9ff;box-shadow:none}
+  body.mystic-mode .tabs{background-color:#171124;border-color:#4a3969;box-shadow:none}
+  body.mystic-mode .tab{color:#c1b0e5}
+  body.mystic-mode .tab.active{background-color:#302346;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  body.mystic-mode select,body.mystic-mode input,body.mystic-mode textarea{background-color:#171122;border-color:#5a4778;box-shadow:none}
+  body.mystic-mode .btn{background-color:#251936;border-color:#5a4679;color:#f2ebff;box-shadow:none}
+  body.mystic-mode .btn.primary{background-color:#7659ba;border-color:#a892eb;box-shadow:none}
+  body.mystic-mode .btn.ghost{background-color:#1c1429;box-shadow:none}
+  body.mystic-mode .player-card,body.mystic-mode .event,body.mystic-mode .table-wrap,body.mystic-mode .metric,body.mystic-mode .chip{background-color:#1b1429;border-color:rgba(177,149,231,.25);box-shadow:none}
+  body.mystic-mode .prey-prob{border-top-color:rgba(190,165,235,.16)}
+  body.mystic-mode .prey-prob-label{color:#a99bc2}
+  body.mystic-mode .prey-prob-note{color:#82769a}
+  body.mystic-mode .prey-scale{background:#292238}
+  body.mystic-mode .prey-scale::after{background:#8f82a8}
+  body.mystic-mode .prey-scale-dot{box-shadow:0 0 0 2px rgba(32,24,47,.78)}
+  body.mystic-mode .badge{background-color:#20172f;border-color:#5b4778;color:#d8cbef;box-shadow:none}
+  body.mystic-mode .badge.fixed{background-color:#2a2040;border-color:#7b66b7;color:#ebddff;box-shadow:none}
+  body.mystic-mode .toast{background-color:#241834;border-color:#65508e;box-shadow:var(--shadow)}
+  body.mystic-mode .mystic-focus{background-color:#312348;box-shadow:0 20px 50px rgba(10,6,22,.34)}
+  .mystic-tab{position:relative}
+  .mystic-tab::after{content:'✦';margin-left:6px;font-size:11px;opacity:.9}
+  .mystic-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  @media(max-width:900px){.mystic-grid{grid-template-columns:1fr}}
+  .mystic-focus{padding:20px;overflow:hidden}
+  .mystic-glow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:#111a23;border:1px solid #2b3a48;font-size:12px;color:#aebdcc}
+  .mystic-focus h3{margin:14px 0 8px;font-size:20px}
+  .mystic-focus p{margin:0;color:#aebdcc;line-height:1.72;font-size:13px}
+  .mystic-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+  @media(max-width:720px){.mystic-metrics{grid-template-columns:1fr}}
+  .mystic-metric{padding:12px;border-radius:14px;background:#0d141b;border:1px solid #21303d}
+  .mystic-metric .label{font-size:11px;color:#8fa1b2}
+  .mystic-metric .value{font-size:24px;font-weight:800;letter-spacing:-.4px;margin-top:6px;color:#fff}
+  .mystic-metric .desc{font-size:11px;color:#8798a8;margin-top:5px;line-height:1.55}
+  .mystic-card{padding:16px}
+  .mystic-card h3{font-size:15px;margin:0 0 12px}
+  .mystic-list{display:flex;flex-direction:column;gap:10px}
+  .mystic-item{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:center;padding:11px 12px;border-radius:13px;background:#101820;border:1px solid #243340}
+  .mystic-seat{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:#15202b;color:#dce7ef;font-weight:800;border:1px solid #2a3948;box-shadow:none}
+  .mystic-name{font-size:14px;font-weight:760}
+  .mystic-sub{font-size:11px;color:#8192a1;line-height:1.55;margin-top:3px}
+  .mystic-gain{font-size:22px;font-weight:820;color:#eaf1f7;white-space:nowrap}
+  .mystic-gain small{display:block;font-size:10px;color:#8fa1b2;font-weight:650;margin-top:2px;text-align:right}
+  .mystic-bar{height:8px;border-radius:999px;background:#1b2631;overflow:hidden;margin-top:8px}
+  .mystic-bar-fill{height:100%;border-radius:999px;background:#69d39a}
+  .mystic-chart-wrap{padding:16px}
+  .mystic-chart-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .mystic-chart-title{font-size:15px;font-weight:760}
+  .mystic-chart-note{font-size:11px;color:#8fa1b2;line-height:1.55}
+  .mystic-chart-box{border-radius:16px;background:#0e151c;border:1px solid #22313e;padding:12px;overflow:hidden}
+  .mystic-empty{padding:38px 18px;text-align:center;color:#8fa1b2;line-height:1.75}
+  .mystic-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:#8fa1b2}
+  .mystic-dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:6px}
+
+
+  /* Cross-browser component-only theme morphing. The page background stays unchanged;
+     only UI components transition into the mystic purple palette. */
+
+  .card,.tabs,.tab,.pill,select,input,textarea,.btn,.player-card,.event,.table-wrap,
+  th,td,.metric,.chip,.badge,.toast,.mystic-focus,.mystic-card,.mystic-item,
+  .mystic-chart-box,.rule-box,.result-btn,.prey-prob,.prey-scale,.prey-prob-value,
+  .prey-scale-dot,.mystic-glow,.mystic-focus p,.mystic-metric,.mystic-metric .label,
+  .mystic-metric .desc,.mystic-seat,.mystic-sub,.mystic-gain,.mystic-gain small,
+  .mystic-bar,.mystic-bar-fill,.mystic-chart-note,.mystic-empty,.mystic-legend,
+  .prey-prob-label,.prey-prob-note,.event-main span,.micro,.hint,.subtitle,label{
+    transition:
+      background-color 1s cubic-bezier(.22,.61,.36,1),
+      border-color 1s cubic-bezier(.22,.61,.36,1),
+      color 1s cubic-bezier(.22,.61,.36,1),
+      box-shadow 1s cubic-bezier(.22,.61,.36,1),
+      opacity 1s cubic-bezier(.22,.61,.36,1);
+    -webkit-transition:
+      background-color 1s cubic-bezier(.22,.61,.36,1),
+      border-color 1s cubic-bezier(.22,.61,.36,1),
+      color 1s cubic-bezier(.22,.61,.36,1),
+      box-shadow 1s cubic-bezier(.22,.61,.36,1),
+      opacity 1s cubic-bezier(.22,.61,.36,1);
+  }
+
+  .prey-scale::after{
+    transition:background-color 1s cubic-bezier(.22,.61,.36,1);
+    -webkit-transition:background-color 1s cubic-bezier(.22,.61,.36,1);
+  }
+
+  body.mystic-mode th{background-color:#211830;color:#d7c8f0;box-shadow:none}
+  body.mystic-mode th:first-child,
+  body.mystic-mode td:first-child{background-color:#211830;box-shadow:none}
+  body.mystic-mode .rule-box{background-color:#17111f;border-color:#4c3b6e;color:#d9cfee;box-shadow:none}
+  body.mystic-mode .result-btn{background-color:#1b1427;border-color:#4c3b6e;color:#d7c9ee;box-shadow:none}
+  body.mystic-mode .result-btn.t:hover,
+  body.mystic-mode .result-btn.f:hover,
+  body.mystic-mode .result-btn.e:hover{border-color:#8d73cf;color:#f0e8ff}
+  body.mystic-mode .mystic-glow{background-color:#251d38;border-color:#755d9f;color:#eadfff}
+  body.mystic-mode .mystic-focus p{color:#d9cfee}
+  body.mystic-mode .mystic-metric{background-color:#171126;border-color:#574171}
+  body.mystic-mode .mystic-metric .label{color:#c8b7eb}
+  body.mystic-mode .mystic-metric .desc{color:#c9bfdd}
+  body.mystic-mode .mystic-item{background-color:#191224;border-color:#4e3b6c;box-shadow:none}
+  body.mystic-mode .mystic-seat{background-color:#7658b8;border-color:#9d80db;color:#fff;box-shadow:0 8px 18px rgba(77,45,138,.30)}
+  body.mystic-mode .mystic-sub{color:#b8abd4}
+  body.mystic-mode .mystic-gain{color:#f3eaff}
+  body.mystic-mode .mystic-gain small{color:#beaee0}
+  body.mystic-mode .mystic-bar{background-color:#241b37}
+  body.mystic-mode .mystic-bar-fill{background-color:#9a7be0}
+  body.mystic-mode .mystic-chart-note,body.mystic-mode .mystic-legend{color:#b6a9d2}
+  body.mystic-mode .mystic-chart-box{background-color:#171021;border-color:#4b3967;box-shadow:none}
+  body.mystic-mode .mystic-empty{color:#bfb2dc}
+
+  /* WebKit/Safari compositing stability: avoid negative root layers and make opacity transition deterministic. */
+  @supports (-webkit-touch-callout: none) {
+    html,body{min-height:100%;background-color:#080b10}
+    .app{-webkit-transform:translateZ(0);transform:translateZ(0)}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card,.tabs,.tab,.pill,select,input,textarea,.btn,.player-card,.event,.table-wrap,
+    th,td,.metric,.chip,.badge,.toast,.mystic-focus,.mystic-card,.mystic-item,
+    .mystic-chart-box,.rule-box,.result-btn,.prey-prob,.prey-scale,.prey-prob-value,
+    .prey-scale-dot,.mystic-glow,.mystic-focus p,.mystic-metric,.mystic-metric .label,
+    .mystic-metric .desc,.mystic-seat,.mystic-sub,.mystic-gain,.mystic-gain small,
+    .mystic-bar,.mystic-bar-fill,.mystic-chart-note,.mystic-empty,.mystic-legend,
+    .prey-prob-label,.prey-prob-note,.event-main span,.micro,.hint,.subtitle,label,
+    .prey-scale::after{transition:none!important;-webkit-transition:none!important}
+  }
+
+  .compute-card{padding:14px 16px}
+  .compute-row{display:grid;grid-template-columns:1fr;gap:8px}
+  .compute-select-wrap{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center}
+  .compute-badge{min-width:76px;text-align:center;padding:9px 10px;border-radius:10px;background:#0d141b;border:1px solid #263442;color:#b9c6d1;font-size:11px;font-weight:760;white-space:nowrap}
+  .compute-desc{font-size:11px;line-height:1.55;color:var(--muted);margin-top:2px}
+  .compute-desc strong{color:#dce7ef;font-weight:760}
+  body.mystic-mode .compute-badge{background-color:#1b1429;border-color:#5a4778;color:#e5d8fa}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div><h1 id="appTitle">森林进化论 · 13人局记分板</h1><div class="subtitle">全局唯一身份约束 · T/F/E 战斗推理 · 单文件离线运行</div></div>
+    </div>
+    <div class="statusrow">
+      <div class="pill" id="solverPill">等待输入</div>
+      <div class="pill" id="worldPill">可能世界：—</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="card compute-card">
+        <div class="section-title"><h2>运算强度</h2><span class="hint">优先选择</span></div>
+        <div class="compute-row">
+          <div class="compute-select-wrap">
+            <select id="computeLevel" aria-label="运算强度">
+              <option value="quick">快速</option>
+              <option value="balanced">平衡</option>
+              <option value="deep">深度</option>
+              <option value="extreme">极限（极度卡顿）</option>
+            </select>
+            <div class="compute-badge" id="computeBadge">平衡</div>
+          </div>
+          <div class="compute-desc" id="computeDesc">默认模式。最多精确枚举约 <strong>12 万</strong> 个物理可能世界，并在解空间过大时提前切换为可行性模式。</div>
+        </div>
+      </div>
+
+      <div class="card section">
+        <div class="section-title"><h2>我的信息</h2><span class="hint">自动保存</span></div>
+        <div class="form-grid">
+          <div style="grid-column:1/-1"><label>局人数</label><select id="gameMode"><option value="13">13人局</option><option value="11">11人局</option></select></div>
+          <div><label>选择座位</label><select id="ownSeat"></select></div>
+          <div><label>选择卡牌</label><select id="ownCard"></select></div>
+        </div>
+        <div class="btnrow"><button class="btn primary" id="applyMe">应用并分析</button><button class="btn ghost" id="resetGame">重置</button></div>
+      </div>
+
+      <div class="card section">
+        <div class="section-title"><h2>攻击记录</h2><span class="hint">前者攻击后者</span></div>
+        <div class="quick-battle">
+          <div><label>攻击者</label><select id="attacker"></select></div>
+          <div class="arrow">→</div>
+          <div><label>被攻击者</label><select id="defender"></select></div>
+        </div>
+        <div class="result-switch">
+          <button class="result-btn t" data-res="T">成功 T</button>
+          <button class="result-btn f" data-res="F">失败 F</button>
+          <button class="result-btn e" data-res="E">平局 E</button>
+        </div>
+      </div>
+
+      <div class="card section">
+        <div class="section-title"><h2>确认身份</h2><span class="hint">技能查看 / 已知信息</span></div>
+        <div class="form-grid">
+          <div><label>玩家</label><select id="confirmSeat"></select></div>
+          <div><label>身份</label><select id="confirmCard"></select></div>
+        </div>
+        <div class="btnrow"><button class="btn" id="addConfirm">添加确认</button></div>
+      </div>
+
+      <div class="card section">
+        <div class="section-title"><h2>批量粘贴</h2><span class="hint">批量记录</span></div>
+        <textarea id="batchInput" placeholder="例如：&#10;9-8 F&#10;10-1 F&#10;11-2 T&#10;9-10 E&#10;&#10;也支持 1+6=T、7-13T"></textarea>
+        <div class="btnrow"><button class="btn" id="importBatch">解析并加入</button><button class="btn ghost" id="clearBatch">清空</button></div>
+      </div>
+
+      <div class="card section">
+        <div class="section-title"><h2>数据</h2><span class="hint">本地浏览器</span></div>
+        <div class="btnrow"><button class="btn" id="exportBtn">导出 JSON</button><button class="btn" id="importBtn">导入 JSON</button></div>
+        <input type="file" id="fileInput" accept="application/json" hidden />
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="tabs">
+        <button class="tab active" data-view="dashboard">总览</button>
+        <button class="tab" data-view="identity">身份方格</button>
+        <button class="tab" data-view="matchup">谁杀谁</button>
+        <button class="tab" data-view="history">记录</button>
+        <button class="tab" data-view="rules">规则</button>
+        <button class="tab mystic-tab" data-view="mystic">神秘力量</button>
+      </div>
+
+      <section class="view active" id="view-dashboard">
+        <div class="card hero">
+          <div>
+            <div class="hero-title">当前视角</div>
+            <div class="me-line"><div class="me-seat" id="meSeatText">—号</div><div class="me-card" id="meCardText">请选择自己的身份</div></div>
+            <div class="meta"><div class="metric">战斗记录 <strong id="eventCount">0</strong></div><div class="metric">确认身份 <strong id="confirmedCount">0</strong></div><div class="metric">可行状态 <strong id="solutionStatus">—</strong></div></div>
+          </div>
+          <div class="solver-note" id="solverNote">输入自己的座位和卡牌后开始推理。系统不会预先生成 13! 个排列，而是用约束传播和回溯剪枝只搜索可能成立的世界。</div>
+        </div>
+
+        <div class="grid2">
+          <div class="card combat-card relation-safe">
+            <h3>安全目标</h3>
+            <div class="bucket win"><div class="bucket-name">对杀能赢</div><div class="chips" id="safeTargets"></div></div>
+          </div>
+          <div class="card combat-card relation-danger">
+            <h3>危险目标</h3>
+            <div class="bucket lose"><div class="bucket-name">对杀会输</div><div class="chips" id="dangerTargets"></div></div>
+          </div>
+          <div class="card combat-card relation-dual">
+            <h3>双向危险</h3>
+            <div class="bucket warn"><div class="bucket-name">双方主动攻击均获胜</div><div class="chips" id="dualTargets"></div></div>
+          </div>
+          <div class="card combat-card relation-neutral">
+            <h3>平局 / 不确定</h3>
+            <div class="bucket draw"><div class="bucket-name">双方必平</div><div class="chips" id="tieTargets"></div></div>
+            <div class="bucket unknown"><div class="bucket-name">尚不能确定</div><div class="chips" id="uncertainTargets"></div></div>
+          </div>
+        </div>
+        <div class="players" id="playerCards"></div>
+      </section>
+
+      <section class="view" id="view-identity">
+        <div class="toolbar"><h2>玩家 × 身份候选矩阵</h2><div class="toolbar-right"><span class="micro" id="probHint">绿色=确定，灰色=可能，暗色=不可能</span></div></div>
+        <div class="table-wrap"><table id="identityTable"></table></div>
+      </section>
+
+      <section class="view" id="view-matchup">
+        <div class="toolbar"><h2 id="matchupHeading">13×13 实时攻防矩阵</h2><div class="toolbar-right"><span class="micro">单元格表示“行玩家主动攻击列玩家”</span><button class="btn" id="calcMatchup">计算完整矩阵</button></div></div>
+        <div class="table-wrap"><table id="matchupTable"></table></div>
+      </section>
+
+      <section class="view" id="view-history">
+        <div class="toolbar"><h2>已知事实</h2><div class="toolbar-right"><button class="btn" id="undoBtn">撤销最后一条</button><button class="btn danger" id="clearHistory">清空记录</button></div></div>
+        <div class="history" id="historyList"></div>
+      </section>
+
+      <section class="view" id="view-rules">
+        <div class="card rules">
+          <h3>当前内置规则</h3>
+          <div class="rule-box" id="ruleDeck"></div>
+          <h3>字母克制</h3>
+          <div class="rule-box">K &gt; Q，Q &gt; J，J &gt; K。</div>
+          <h3>同字母花色关系</h3>
+          <div class="rule-box" id="ruleSuit"></div>
+          <h3>Joker</h3>
+          <div class="rule-box" id="ruleJoker"></div>
+          <h3>推理方式</h3>
+          <div class="rule-box" id="ruleInference"></div>
+        </div>
+      </section>
+      <section class="view" id="view-mystic">
+        <div class="mystic-grid">
+          <div class="card mystic-focus" id="mysticFocus"></div>
+          <div class="card mystic-card">
+            <h3>灵视排序</h3>
+            <div class="mystic-list" id="mysticList"></div>
+          </div>
+        </div>
+        <div class="card mystic-chart-wrap" style="margin-top:14px">
+          <div class="mystic-chart-head">
+            <div>
+              <div class="mystic-chart-title">确信度增益曲线</div>
+              <div class="mystic-chart-note">横轴为玩家编号，纵轴为“若确认该玩家真实身份后”你对自身捕食链的预期平均确信度提升。</div>
+            </div>
+            <div class="mystic-legend">
+              <span><span class="mystic-dot" style="background:#8e72de"></span>确信度增益</span>
+              <span><span class="mystic-dot" style="background:#d9bbff"></span>预计新增确定关系</span>
+            </div>
+          </div>
+          <div class="mystic-chart-box" id="mysticChart"></div>
+        </div>
+      </section>
+      <div class="footer" id="footerText"></div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  'use strict';
+  const COMPUTE_LEVELS={
+    quick:{label:'快速',enumLimit:40000,earlyEventLimit:5,candidate13:42,candidate11:35,desc:'响应优先。最多精确枚举约 <strong>4 万</strong> 个物理可能世界；当攻击较少、候选仍很多时更早进入可行性模式。'},
+    balanced:{label:'平衡',enumLimit:120000,earlyEventLimit:4,candidate13:45,candidate11:38,desc:'默认模式。最多精确枚举约 <strong>12 万</strong> 个物理可能世界，并在解空间过大时提前切换为可行性模式。'},
+    deep:{label:'深度',enumLimit:500000,earlyEventLimit:2,candidate13:60,candidate11:52,desc:'精度优先。最多尝试精确枚举约 <strong>50 万</strong> 个物理可能世界；更少触发提前跳过，但复杂局面可能明显变慢。'},
+    extreme:{label:'极限（极度卡顿）',enumLimit:5000000,earlyEventLimit:0,candidate13:999,candidate11:999,desc:'极限模式。最多尝试精确枚举约 <strong>500 万</strong> 个物理可能世界，并关闭少量攻击时的提前跳过。移动端可能出现较长计算、较高内存占用或浏览器回收页面。<strong>约一轮捕食信息即可解析。</strong>'}
+  };
+  const suitName={1:'梅花♣',2:'方片♦',3:'黑桃♠',4:'红桃♥'};
+  const suitShort={1:'♣',2:'♦',3:'♠',4:'♥'};
+  const ranks=['K','Q','J'];
+  const CONFIGS={
+    13:{n:13,suits:[1,2,3,4],jokerCopies:1,suitBeats:{1:2,2:3,3:4,4:1},suitTie:true},
+    11:{n:11,suits:[1,3,4],jokerCopies:2,suitBeats:{3:4,4:1,1:3},suitTie:false}
+  };
+  let config,N,C,FULL,cards,logicalTypes,logicalMasks,logicalCapacity;
+
+  const defaultState=(mode=13,computeLevel='balanced')=>({mode,computeLevel,ownSeat:null,ownCard:'',events:[],confirmed:{},log:[]});
+  let state=loadState()||defaultState();
+  if(!CONFIGS[state.mode]) state.mode=13;
+  if(!COMPUTE_LEVELS[state.computeLevel]) state.computeLevel='balanced';
+  let analysis=null,matchupCache=null,mysticCache=null;
+
+  function buildCards(){
+    const out=[];
+    for(const r of ranks) for(const suit of config.suits) out.push({id:`${suit}${r}`,logical:`${suit}${r}`,suit,rank:r});
+    for(let i=1;i<=config.jokerCopies;i++) out.push({id:`JK${i}`,logical:'JK',suit:0,rank:'JK'});
+    return out;
+  }
+  function applyConfig(mode){
+    config=CONFIGS[mode];N=config.n;cards=buildCards();C=cards.length;FULL=(1<<C)-1;
+    logicalTypes=[];logicalMasks={};logicalCapacity={};
+    for(let i=0;i<C;i++){
+      const id=cards[i].logical;
+      if(!(id in logicalMasks)){logicalTypes.push(id);logicalMasks[id]=0;logicalCapacity[id]=0}
+      logicalMasks[id]|=1<<i;logicalCapacity[id]++;
+    }
+    document.title=`森林进化论 · ${N}人局记分板`;
+    document.getElementById('appTitle').textContent=`森林进化论 · ${N}人局记分板`;
+    document.getElementById('matchupHeading').textContent=`${N}×${N} 实时攻防矩阵`;
+    renderRulesText();
+  }
+  function renderRulesText(){
+    if(N===13){
+      document.getElementById('ruleDeck').innerHTML='牌组：四种花色 × K/Q/J + Joker，共 13 张唯一身份。编码：<span class="code">1=梅花</span>、<span class="code">2=方片</span>、<span class="code">3=黑桃</span>、<span class="code">4=红桃</span>。';
+      document.getElementById('ruleSuit').innerHTML='梅花 &gt; 方片 &gt; 黑桃 &gt; 红桃 &gt; 梅花；对角花色为平局，即梅花↔黑桃、方片↔红桃。';
+      document.getElementById('ruleJoker').innerHTML='Joker 主动攻击普通牌为 T；普通牌主动攻击 Joker 也为 T。';
+    }else{
+      document.getElementById('ruleDeck').innerHTML='牌组：黑桃、红桃、梅花三种花色 × K/Q/J，共 9 张普通身份，再加入两张 Joker，共 11 张身份牌。编码沿用 <span class="code">1=梅花</span>、<span class="code">3=黑桃</span>、<span class="code">4=红桃</span>。两张 Joker 在推理中具有相同身份类别，但各自占用一个独立牌位。';
+      document.getElementById('ruleSuit').innerHTML='同字母时：黑桃 &gt; 红桃，红桃 &gt; 梅花，梅花 &gt; 黑桃。普通牌之间不存在同字母平局。';
+      document.getElementById('ruleJoker').innerHTML='Joker 主动攻击普通牌为 T；普通牌主动攻击 Joker 也为 T；Joker 与 Joker 相互捕食为 E。';
+    }
+    document.getElementById('ruleInference').innerHTML=`系统将 ${N} 名玩家的隐藏身份建模为有限域约束满足问题（CSP）。每条 <span class="code">A→B=T/F/E</span> 观测被形式化为二元关系约束，并结合身份容量约束：普通牌容量为 1，${N===11?'Joker 容量为 2':'Joker 容量为 1'}。求解首先执行弧一致性传播压缩变量可行域，再采用最小剩余值（MRV）启发式回溯搜索，并以二分图完美匹配检测全局可满足性。对满足全部观测条件的身份配置集合执行模型计数后，可得到身份后验概率及任意两名玩家之间胜、负、平的条件概率。`;
+    document.getElementById('footerText').textContent=`数据仅保存在当前浏览器 localStorage。当前为 ${N} 人局规则。`;
+  }
+  function displayCard(id){return id==='JK'||id.startsWith('JK')?'Joker':`${suitName[+id[0]]}${id.slice(1)}`}
+  function shortCard(id){return id==='JK'||id.startsWith('JK')?'Joker':`${suitShort[+id[0]]}${id.slice(1)}`}
+  function logicalSetFromMask(mask){const set=new Set();for(const i of bitIter(mask))set.add(cards[i].logical);return [...set]}
+  function logicalProb(i,id){if(!analysis?.enumResult?.probs)return 0;let p=0;for(let c=0;c<C;c++)if(cards[c].logical===id)p+=analysis.enumResult.probs[i][c];return p}
+  function logicalWorldSymmetry(){return config.jokerCopies===2?2:1}
+
+  function loadState(){
+    try{
+      const v3=localStorage.getItem('forest_scoreboard_state_v3');
+      if(v3)return JSON.parse(v3);
+      const v2=localStorage.getItem('forest13_state_v2');
+      if(v2){const x=JSON.parse(v2);x.mode=13;return x}
+      return null;
+    }catch{return null}
+  }
+  function saveState(){localStorage.setItem('forest_scoreboard_state_v3',JSON.stringify(state))}
+  function toast(msg,error=false){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(error?' error':'');clearTimeout(toast.t);toast.t=setTimeout(()=>el.className='toast',2200)}
+  function bitIter(mask){const out=[];for(let i=0;i<C;i++)if(mask&(1<<i))out.push(i);return out}
+  const popcnt=x=>{x=x-((x>>>1)&0x55555555);x=(x&0x33333333)+((x>>>2)&0x33333333);return (((x+(x>>>4))&0x0F0F0F0F)*0x01010101)>>>24};
+  function factorial(n){let v=1;for(let i=2;i<=n;i++)v*=i;return v}
+  function computeProfile(){return COMPUTE_LEVELS[state.computeLevel]||COMPUTE_LEVELS.balanced}
+  function updateComputeUI(){
+    const profile=computeProfile();
+    const select=document.getElementById('computeLevel'),badge=document.getElementById('computeBadge'),desc=document.getElementById('computeDesc');
+    if(select)select.value=state.computeLevel||'balanced';
+    if(badge)badge.textContent=profile.label;
+    if(desc)desc.innerHTML=profile.desc;
+  }
+
+  function suitBattle(a,b){
+    if(a===b)return 'E';
+    if(config.suitBeats[a]===b)return 'T';
+    if(config.suitBeats[b]===a)return 'F';
+    return config.suitTie?'E':'X';
+  }
+  function rankBattle(a,b){
+    if(a===b)return null;
+    return (a==='K'&&b==='Q')||(a==='Q'&&b==='J')||(a==='J'&&b==='K')?'T':'F';
+  }
+  function battleByIndex(ai,bi){
+    if(ai===bi)return 'X';
+    const A=cards[ai],B=cards[bi];
+    if(A.rank==='JK'&&B.rank==='JK')return 'E';
+    if(A.rank==='JK'||B.rank==='JK')return 'T';
+    const r=rankBattle(A.rank,B.rank);
+    return r||suitBattle(A.suit,B.suit);
+  }
+
+  function battleByLogical(aid,bid){
+    if(aid==='JK'&&bid==='JK')return 'E';
+    if(aid==='JK'||bid==='JK')return 'T';
+    const A={suit:+aid[0],rank:aid.slice(1)},B={suit:+bid[0],rank:bid.slice(1)};
+    const r=rankBattle(A.rank,B.rank);
+    return r||suitBattle(A.suit,B.suit);
+  }
+  function myPredationProbability(playerIndex){
+    if(!analysis?.valid||!state.ownSeat||!state.ownCard||playerIndex===state.ownSeat-1)return null;
+    const out={T:0,F:0,E:0,exact:false};
+    if(analysis.enumResult?.probs){
+      for(const id of logicalTypes){
+        const p=logicalProb(playerIndex,id);
+        if(!p)continue;
+        const r=battleByLogical(state.ownCard,id);
+        if(r in out)out[r]+=p;
+      }
+      out.exact=true;
+      return out;
+    }
+    const poss=logicalSetFromMask(analysis.masks[playerIndex]);
+    if(!poss.length)return null;
+    const outcomes=new Set(poss.map(id=>battleByLogical(state.ownCard,id)));
+    if(outcomes.size===1){
+      const r=[...outcomes][0];
+      if(r in out){out[r]=1;out.exact=true;return out}
+    }
+    return null;
+  }
+  function preyProbabilityHTML(playerIndex){
+    if(playerIndex===state.ownSeat-1){
+      return `<div class="prey-prob"><div class="prey-prob-row"><span class="prey-prob-label">我捕食 TA</span><span class="prey-prob-value neutral">—</span></div><div class="prey-scale"><span class="prey-scale-dot neutral" style="left:50%"></span></div><div class="prey-prob-note">当前玩家是自己</div></div>`;
+    }
+    const d=myPredationProbability(playerIndex);
+    if(!d){
+      return `<div class="prey-prob"><div class="prey-prob-row"><span class="prey-prob-label">我捕食 TA</span><span class="prey-prob-value neutral">—</span></div><div class="prey-scale"><span class="prey-scale-dot neutral" style="left:50%"></span></div><div class="prey-prob-note">当前尚无精确模型计数</div></div>`;
+    }
+    const p=Math.max(0,Math.min(1,d.T)),pct=p*100;
+    const tone=Math.abs(p-.5)<1e-9?'neutral':p>.5?'good':'bad';
+    const left=p>=.5?50:pct,width=Math.abs(pct-50);
+    const title=`成功 T ${(d.T*100).toFixed(1)}% · 失败 F ${(d.F*100).toFixed(1)}% · 平局 E ${(d.E*100).toFixed(1)}%`;
+    return `<div class="prey-prob" title="${title}"><div class="prey-prob-row"><span class="prey-prob-label">我捕食 TA</span><span class="prey-prob-value ${tone}">${pct.toFixed(pct===0||pct===100?0:1)}%</span></div><div class="prey-scale"><span class="prey-fill ${tone}" style="left:${left}%;width:${width}%"></span><span class="prey-scale-dot ${tone}" style="left:${pct}%"></span></div><div class="prey-prob-note">50% 为中性线 · 悬停查看 T/F/E</div></div>`;
+  }
+
+  function normalizedConfirmed(){const c={...state.confirmed};if(state.ownSeat&&state.ownCard)c[state.ownSeat]=state.ownCard;return c}
+  function buildPairEvents(extraEvent=null){
+    const map=Array.from({length:N},()=>Array.from({length:N},()=>[]));
+    const all=extraEvent?[...state.events,extraEvent]:state.events;
+    for(const e of all){if(e.attacker>=1&&e.attacker<=N&&e.defender>=1&&e.defender<=N)map[e.attacker-1][e.defender-1].push(e.result)}
+    return map;
+  }
+  function compatible(i,ci,j,cj,pairEvents){
+    if(ci===cj)return false;
+    for(const r of pairEvents[i][j])if(battleByIndex(ci,cj)!==r)return false;
+    for(const r of pairEvents[j][i])if(battleByIndex(cj,ci)!==r)return false;
+    return true;
+  }
+  function initialMasks(){
+    const masks=Array(N).fill(FULL),conf=normalizedConfirmed(),counts={};
+    for(const [seatS,id] of Object.entries(conf)){
+      const seat=+seatS;if(seat<1||seat>N||!logicalMasks[id])return null;
+      counts[id]=(counts[id]||0)+1;if(counts[id]>logicalCapacity[id])return null;
+      masks[seat-1]=logicalMasks[id];
+    }
+    for(const [id,count] of Object.entries(counts)){
+      if(count===logicalCapacity[id]){
+        const m=logicalMasks[id];
+        for(let i=0;i<N;i++)if(!conf[i+1]||conf[i+1]!==id)masks[i]&=~m;
+      }
+    }
+    return masks;
+  }
+  function arcPropagate(masks,pairEvents){
+    masks=masks.slice();let changed=true;
+    while(changed){
+      changed=false;
+      for(let i=0;i<N;i++){
+        if(!masks[i])return null;
+        for(let j=0;j<N;j++)if(i!==j){
+          let nm=0;
+          for(const ci of bitIter(masks[i])){
+            let ok=false;
+            for(const cj of bitIter(masks[j]))if(compatible(i,ci,j,cj,pairEvents)){ok=true;break}
+            if(ok)nm|=1<<ci;
+          }
+          if(nm!==masks[i]){masks[i]=nm;changed=true;if(!nm)return null}
+        }
+      }
+      let singles=0;
+      for(const m of masks)if(popcnt(m)===1)singles|=m;
+      for(let i=0;i<N;i++)if(popcnt(masks[i])>1){const nm=masks[i]&~singles;if(nm!==masks[i]){masks[i]=nm;changed=true;if(!nm)return null}}
+      let seen=0;
+      for(const m of masks)if(popcnt(m)===1){if(seen&m)return null;seen|=m}
+    }
+    return masks;
+  }
+  function hasPerfectMatching(masks,assigned,usedMask,pairEvents){
+    const players=[],cand=Array(N).fill(0);
+    for(let i=0;i<N;i++)if(assigned[i]<0){
+      let m=masks[i]&~usedMask;
+      for(let j=0;j<N;j++)if(assigned[j]>=0){let f=0;for(const ci of bitIter(m))if(compatible(i,ci,j,assigned[j],pairEvents))f|=1<<ci;m=f;if(!m)return false}
+      cand[i]=m;players.push(i);
+    }
+    players.sort((a,b)=>popcnt(cand[a])-popcnt(cand[b]));
+    const match=Array(C).fill(-1);
+    function aug(p,seen){
+      for(const c of bitIter(cand[p]))if(!(seen&(1<<c))){const ns=seen|(1<<c);if(match[c]===-1||aug(match[c],ns)){match[c]=p;return true}}
+      return false;
+    }
+    for(const p of players)if(!aug(p,0))return false;
+    return true;
+  }
+  function findSolution(baseMasks,pairEvents,forced=null,collect=false,limit=1){
+    const masks=baseMasks.slice();
+    if(forced){const [p,c]=forced;if(!(masks[p]&(1<<c)))return {count:0,solutions:[]};masks[p]=1<<c}
+    const prop=arcPropagate(masks,pairEvents);if(!prop)return {count:0,solutions:[]};
+    const assigned=Array(N).fill(-1);let usedMask=0;
+    for(let i=0;i<N;i++)if(popcnt(prop[i])===1){const c=bitIter(prop[i])[0];if(usedMask&(1<<c))return {count:0,solutions:[]};assigned[i]=c;usedMask|=1<<c}
+    for(let i=0;i<N;i++)if(assigned[i]>=0)for(let j=i+1;j<N;j++)if(assigned[j]>=0&&!compatible(i,assigned[i],j,assigned[j],pairEvents))return {count:0,solutions:[]};
+    let count=0,stopped=false;const solutions=[];
+    function dfs(){
+      if(count>=limit){stopped=true;return}
+      let best=-1,bestList=null;
+      for(let i=0;i<N;i++)if(assigned[i]<0){
+        const arr=[];
+        for(const c of bitIter(prop[i]&~usedMask)){let ok=true;for(let j=0;j<N;j++)if(assigned[j]>=0&&!compatible(i,c,j,assigned[j],pairEvents)){ok=false;break}if(ok)arr.push(c)}
+        if(arr.length===0)return;
+        if(best===-1||arr.length<bestList.length){best=i;bestList=arr;if(arr.length===1)break}
+      }
+      if(best===-1){count++;if(collect)solutions.push(assigned.slice());return}
+      bestList.sort((a,b)=>scoreValue(best,b)-scoreValue(best,a));
+      for(const c of bestList){
+        assigned[best]=c;usedMask|=1<<c;
+        let fail=false;
+        for(let k=0;k<N&&!fail;k++)if(assigned[k]<0){let any=false;for(const d of bitIter(prop[k]&~usedMask)){let ok=true;for(let j=0;j<N;j++)if(assigned[j]>=0&&!compatible(k,d,j,assigned[j],pairEvents)){ok=false;break}if(ok){any=true;break}}if(!any)fail=true}
+        if(!fail&&hasPerfectMatching(prop,assigned,usedMask,pairEvents))dfs();
+        usedMask&=~(1<<c);assigned[best]=-1;if(stopped)return;
+      }
+      function scoreValue(p,c){let s=0;for(let k=0;k<N;k++)if(assigned[k]<0&&k!==p)for(const d of bitIter(prop[k]&~usedMask))if(d!==c&&compatible(p,c,k,d,pairEvents))s++;return s}
+    }
+    dfs();return {count,solutions,stopped};
+  }
+  function noBattleEnumeration(){
+    const conf=normalizedConfirmed(),counts={};
+    for(const id of Object.values(conf))counts[id]=(counts[id]||0)+1;
+    const fixedSeats=Object.keys(conf).length,remain=N-fixedSeats;
+    let total=factorial(remain);
+    const remaining={};
+    for(const id of logicalTypes){remaining[id]=logicalCapacity[id]-(counts[id]||0);total/=factorial(remaining[id])}
+    const probs=Array.from({length:N},()=>Array(C).fill(0));
+    for(let i=0;i<N;i++){
+      const id=conf[i+1];
+      if(id){const inds=bitIter(logicalMasks[id]);for(const c of inds)probs[i][c]=1/inds.length}
+      else if(remain>0){
+        for(const lid of logicalTypes){const lp=remaining[lid]/remain,inds=bitIter(logicalMasks[lid]);for(const c of inds)probs[i][c]=lp/inds.length}
+      }
+    }
+    return {exact:true,total,probs,solutions:null};
+  }
+  function analyze(){
+    matchupCache=null;mysticCache=null;document.getElementById('solverPill').innerHTML='<span class="loading"><span class="dot"></span>分析中</span>';
+    setTimeout(()=>{
+      const base=initialMasks();
+      if(!base){analysis={valid:false,reason:'确认身份与当前牌组容量冲突'};renderAll();return}
+      const pairEvents=buildPairEvents(),prop=arcPropagate(base,pairEvents);
+      if(!prop){analysis={valid:false,reason:'当前信息互相矛盾'};renderAll();return}
+      const any=findSolution(prop,pairEvents,null,false,1);
+      if(any.count===0){analysis={valid:false,reason:'不存在满足全部记录的身份分配'};renderAll();return}
+      const noBattles=state.events.length===0;
+      const possible=Array.from({length:N},()=>Array(C).fill(false));
+      if(noBattles){for(let i=0;i<N;i++)for(const c of bitIter(prop[i]))possible[i][c]=true}
+      else for(let i=0;i<N;i++)for(const c of bitIter(prop[i]))possible[i][c]=findSolution(prop,pairEvents,[i,c],false,1).count>0;
+      const exactMasks=possible.map(row=>row.reduce((m,v,c)=>v?m|(1<<c):m,0));
+      let enumResult;
+      if(noBattles)enumResult=noBattleEnumeration();
+      else{
+        const candidateTotal=exactMasks.reduce((s,m)=>s+popcnt(m),0);
+        const profile=computeProfile();
+        const candidateLimit=N===13?profile.candidate13:profile.candidate11;
+        if(state.events.length<profile.earlyEventLimit&&candidateTotal>candidateLimit)enumResult={exact:false,total:'未枚举',probs:null,solutions:null};
+        else{
+          const enumLimit=profile.enumLimit;
+          const er=findSolution(exactMasks,pairEvents,null,true,enumLimit+1);
+          if(!er.stopped&&er.count<=enumLimit){
+            const probs=Array.from({length:N},()=>Array(C).fill(0));
+            for(const sol of er.solutions)for(let i=0;i<N;i++)probs[i][sol[i]]++;
+            for(let i=0;i<N;i++)for(let c=0;c<C;c++)probs[i][c]/=er.count;
+            enumResult={exact:true,total:er.count/logicalWorldSymmetry(),probs,solutions:er.solutions};
+          }else enumResult={exact:false,total:`>${Math.floor(enumLimit/logicalWorldSymmetry()).toLocaleString()}`,probs:null,solutions:null};
+        }
+      }
+      analysis={valid:true,pairEvents,masks:exactMasks,possible,enumResult};renderAll();
+    },20);
+  }
+  function outcomePossibilities(a,b){
+    if(!analysis?.valid)return [];
+    if(analysis.enumResult.exact&&analysis.enumResult.solutions){const set=new Set();for(const s of analysis.enumResult.solutions)set.add(battleByIndex(s[a],s[b]));return [...set].filter(x=>x!=='X')}
+    if(state.events.length===0){const set=new Set();for(const ca of bitIter(analysis.masks[a]))for(const cb of bitIter(analysis.masks[b]))if(ca!==cb){const r=battleByIndex(ca,cb);if(r!=='X')set.add(r)}return [...set]}
+    const out=[];
+    for(const r of ['T','F','E']){const pe=buildPairEvents({attacker:a+1,defender:b+1,result:r}),prop=arcPropagate(initialMasks(),pe);if(prop&&findSolution(prop,pe,null,false,1).count)out.push(r)}
+    return out;
+  }
+  function outcomeLabel(arr){return arr.length===1?arr[0]:'M'}
+  function relationCodeFromSolution(sol,a,b){return battleByIndex(sol[a],sol[b])+battleByIndex(sol[b],sol[a])}
+  function relationText(code){return code==='TF'?'我赢他输':code==='FT'?'我输他赢':code==='TT'?'双向危险':code==='EE'?'双方平局':'关系未定'}
+  function relationDistributionFromSolutions(solutions,me){
+    const total=solutions.length,rows=[];let sumConfidence=0,unresolved=0;
+    for(let j=0;j<N;j++)if(j!==me){
+      const counts={};
+      for(const sol of solutions){const code=relationCodeFromSolution(sol,me,j);counts[code]=(counts[code]||0)+1}
+      const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+      const bestCount=entries[0]?entries[0][1]:0;
+      const confidence=total?bestCount/total:0;
+      if(entries.length>1)unresolved++;
+      sumConfidence+=confidence;
+      rows.push({seat:j+1,counts,entries,topCode:entries[0]?.[0]||'??',confidence,uncertain:entries.length>1});
+    }
+    return {rows,totalConfidence:sumConfidence,avgConfidence:rows.length?sumConfidence/rows.length:0,unresolved};
+  }
+  function buildMysticAnalysis(){
+    if(!analysis?.valid)return {ok:false,reason:'当前记录存在矛盾，神秘力量无法展开。'};
+    if(!state.ownSeat||!state.ownCard)return {ok:false,reason:'请先在左侧设置你的座位与身份，神秘力量才知道该围绕谁展开。'};
+    const me=state.ownSeat-1;
+    const er=analysis.enumResult;
+    if(!(er&&er.exact&&er.solutions&&er.solutions.length))return {ok:false,reason:'当前状态还没有精确枚举出全部可能世界。先增加一些战斗/确认信息，再来开启神秘力量。'};
+    const solutions=er.solutions;
+    const base=relationDistributionFromSolutions(solutions,me);
+    const currentConfidence=base.avgConfidence;
+    const rows=[];
+    for(let target=0;target<N;target++)if(target!==me){
+      const groups=new Map();
+      for(const sol of solutions){
+        const lid=cards[sol[target]].logical;
+        if(!groups.has(lid))groups.set(lid,[]);
+        groups.get(lid).push(sol);
+      }
+      let expectedConfidence=0,expectedUnresolved=0,fullResolveProb=0;
+      const branches=[];
+      for(const [lid,worlds] of groups.entries()){
+        const p=worlds.length/solutions.length;
+        const summary=relationDistributionFromSolutions(worlds,me);
+        expectedConfidence+=p*summary.avgConfidence;
+        expectedUnresolved+=p*summary.unresolved;
+        if(summary.unresolved===0)fullResolveProb+=p;
+        branches.push({id:lid,p,summary});
+      }
+      branches.sort((a,b)=>b.p-a.p);
+      const gain=expectedConfidence-currentConfidence;
+      const resolvedGain=base.unresolved-expectedUnresolved;
+      const branchText=branches.slice(0,3).map(x=>`${shortCard(x.id)} ${(x.p*100).toFixed(x.p*100<10?1:0)}%`).join(' · ');
+      rows.push({
+        seat:target+1,
+        gain,
+        gainPct:gain*100,
+        expectedConfidence,
+        expectedUnresolved,
+        resolvedGain,
+        fullResolveProb,
+        branchText
+      });
+    }
+    rows.sort((a,b)=>b.gain===a.gain?(b.resolvedGain===a.resolvedGain?b.fullResolveProb-a.fullResolveProb:b.resolvedGain-a.resolvedGain):b.gain-a.gain);
+    const best=rows[0]||null;
+    return {ok:true,base,rows,best,currentConfidence};
+  }
+  function smoothPath(points){
+    if(points.length<=1)return points.length?`M ${points[0].x} ${points[0].y}`:'';
+    let d=`M ${points[0].x} ${points[0].y}`;
+    for(let i=0;i<points.length-1;i++){
+      const p0=points[i-1]||points[i],p1=points[i],p2=points[i+1],p3=points[i+2]||p2;
+      const cp1x=p1.x+(p2.x-p0.x)/6, cp1y=p1.y+(p2.y-p0.y)/6;
+      const cp2x=p2.x-(p3.x-p1.x)/6, cp2y=p2.y-(p3.y-p1.y)/6;
+      d+=` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+    }
+    return d;
+  }
+  function renderMysticChart(rows){
+    const host=document.getElementById('mysticChart');
+    if(!rows.length){host.innerHTML='<div class="mystic-empty">暂无可展示数据</div>';return}
+    const ordered=[...rows].sort((a,b)=>a.seat-b.seat),w=980,h=360,pad={l:52,r:22,t:20,b:50};
+    const maxGain=Math.max(...ordered.map(x=>x.gainPct),1), maxResolved=Math.max(...ordered.map(x=>x.resolvedGain),1), innerW=w-pad.l-pad.r, innerH=h-pad.t-pad.b;
+    const ptsGain=ordered.map((x,i)=>({x:pad.l+(ordered.length===1?innerW/2:i*innerW/(ordered.length-1)),y:pad.t+innerH-(x.gainPct/maxGain)*innerH,value:x.gainPct,label:x.seat}));
+    const ptsResolved=ordered.map((x,i)=>({x:pad.l+(ordered.length===1?innerW/2:i*innerW/(ordered.length-1)),y:pad.t+innerH-(x.resolvedGain/maxResolved)*innerH,value:x.resolvedGain,label:x.seat}));
+    const gainPath=smoothPath(ptsGain), resolvedPath=smoothPath(ptsResolved);
+    const areaPath=`${gainPath} L ${ptsGain[ptsGain.length-1].x} ${pad.t+innerH} L ${ptsGain[0].x} ${pad.t+innerH} Z`;
+    let grid='';
+    for(let i=0;i<5;i++){
+      const y=pad.t+innerH*i/4;
+      const v=((4-i)/4*maxGain).toFixed(1);
+      grid+=`<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="rgba(196,178,235,.12)" stroke-width="1" />`;
+      grid+=`<text x="${pad.l-10}" y="${y+4}" text-anchor="end" font-size="11" fill="#bbaad9">${v}%</text>`;
+    }
+    let labels='';
+    for(const p of ptsGain){labels+=`<text x="${p.x}" y="${h-18}" text-anchor="middle" font-size="11" fill="#c6b8e3">${p.label}号</text>`}
+    const gainDots=ptsGain.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#8e72de" stroke="#efe7ff" stroke-width="1.5" /><text x="${p.x}" y="${p.y-11}" text-anchor="middle" font-size="10" fill="#efe7ff">${p.value.toFixed(1)}%</text>`).join('');
+    const resolvedDots=ptsResolved.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="3.8" fill="#d9bbff" stroke="#2a203e" stroke-width="1" />`).join('');
+    host.innerHTML=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="神秘力量曲线图">
+      <defs>
+        <linearGradient id="mysticArea" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="rgba(158,125,232,.42)" />
+          <stop offset="100%" stop-color="rgba(158,125,232,0)" />
+        </linearGradient>
+      </defs>
+      ${grid}
+      <path d="${areaPath}" fill="url(#mysticArea)" />
+      <path d="${gainPath}" fill="none" stroke="#8e72de" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="${resolvedPath}" fill="none" stroke="#d9bbff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 7" />
+      ${gainDots}
+      ${resolvedDots}
+      ${labels}
+      <text x="${w-pad.r}" y="${pad.t+14}" text-anchor="end" font-size="11" fill="#baa7d9">淡紫实线：平均确信度增益</text>
+      <text x="${w-pad.r}" y="${pad.t+31}" text-anchor="end" font-size="11" fill="#d9bbff">虚线：预计新增确定关系（缩放后）</text>
+    </svg>`;
+  }
+  function renderMystic(){
+    const focus=document.getElementById('mysticFocus'), list=document.getElementById('mysticList');
+    if(!mysticCache)mysticCache=buildMysticAnalysis();
+    const data=mysticCache;
+    if(!data.ok){
+      focus.innerHTML=`<div class="mystic-empty">${data.reason}</div>`;
+      list.innerHTML='<div class="mystic-empty">等待更多可用于推理的高质量信息。</div>';
+      document.getElementById('mysticChart').innerHTML='<div class="mystic-empty">暂时无法绘制神秘曲线。</div>';
+      return;
+    }
+    const best=data.best, currentPct=(data.currentConfidence*100).toFixed(1), afterPct=(best.expectedConfidence*100).toFixed(1);
+    focus.innerHTML=`<div class="mystic-glow">✦ 神秘力量已觉醒</div>
+      <h3>优先窥视 <strong>${best.seat}号</strong> 的真实信息</h3>
+      <p>以你当前的身份与所有已知约束为基础，系统评估了“再额外确认谁的真实身份”最能冗余地锁定你的捕食链。当前你对整条捕食链的平均确信度约为 <strong>${currentPct}%</strong>；若先确认 <strong>${best.seat}号</strong>，则预期可提升至 <strong>${afterPct}%</strong>。</p>
+      <div class="mystic-metrics">
+        <div class="mystic-metric"><div class="label">推荐对象</div><div class="value">${best.seat}号</div><div class="desc">当前最优的信息查询位点</div></div>
+        <div class="mystic-metric"><div class="label">预计确信度提升</div><div class="value">+${best.gainPct.toFixed(1)}%</div><div class="desc">指你的整条捕食链平均最大后验概率提升</div></div>
+        <div class="mystic-metric"><div class="label">预计新增确定关系</div><div class="value">+${best.resolvedGain.toFixed(2)}</div><div class="desc">并且一口气全部锁定的概率约 ${(best.fullResolveProb*100).toFixed(1)}%</div></div>
+      </div>`;
+    list.innerHTML=data.rows.map((row,idx)=>{
+      const fill=Math.max(6,Math.min(100,best.gainPct>0?row.gainPct/best.gainPct*100:0));
+      return `<div class="mystic-item"><div class="mystic-seat">${row.seat}</div><div><div class="mystic-name">${idx===0?'首选灵视':'候选'} · ${row.seat}号</div><div class="mystic-sub">最可能身份分支：${row.branchText||'—'}<br/>预计新增确定关系 ${row.resolvedGain.toFixed(2)}，全部锁定概率 ${(row.fullResolveProb*100).toFixed(1)}%</div><div class="mystic-bar"><div class="mystic-bar-fill" style="width:${fill}%"></div></div></div><div class="mystic-gain">+${row.gainPct.toFixed(1)}%<small>预期确信度增益</small></div></div>`;
+    }).join('');
+    renderMysticChart(data.rows);
+  }
+  function renderAll(){saveState();syncInputs();renderStatus();renderDashboard();renderIdentity();renderHistory();renderMatchupPlaceholder();renderMystic()}
+  function renderStatus(){
+    const pill=document.getElementById('solverPill'),world=document.getElementById('worldPill');
+    if(!analysis?.valid){pill.textContent=analysis?.reason||'等待输入';pill.className='pill bad';world.textContent='可能世界：0';world.className='pill bad';return}
+    pill.textContent='约束一致';pill.className='pill good';const er=analysis.enumResult;
+    world.textContent=`可能世界：${typeof er.total==='number'?Math.round(er.total).toLocaleString():er.total}${er.exact?'（精确）':'（过多，未枚举）'}`;world.className='pill';
+  }
+  function renderDashboard(){
+    const seat=state.ownSeat,card=state.ownCard;
+    document.getElementById('meSeatText').textContent=seat?`${seat}号`:'—号';document.getElementById('meCardText').textContent=card?displayCard(card):'请选择自己的身份';
+    document.getElementById('eventCount').textContent=state.events.length;document.getElementById('confirmedCount').textContent=Object.keys(normalizedConfirmed()).length;
+    document.getElementById('solutionStatus').textContent=analysis?.valid?(analysis.enumResult.exact?'精确':'可行性模式'):'矛盾';
+    document.getElementById('solverNote').textContent=!analysis?.valid?(analysis?.reason||'等待输入'):(!seat||!card?`请选择座位和卡牌。${N} 人局假设空间通过约束传播与回溯剪枝进行求解。`:(analysis.enumResult.exact?'已完成全局约束求解。':'当前合法状态仍很多；身份格显示严格的全局可行性，不显示未经精确计数的概率。'));
+    const groups={safeTargets:[],dangerTargets:[],dualTargets:[],tieTargets:[],uncertainTargets:[]};
+    if(analysis?.valid&&seat){const me=seat-1;for(let j=0;j<N;j++)if(j!==me){const mine=outcomeLabel(outcomePossibilities(me,j)),theirs=outcomeLabel(outcomePossibilities(j,me));if(mine==='T'&&theirs==='F')groups.safeTargets.push(j+1);else if(mine==='F'&&theirs==='T')groups.dangerTargets.push(j+1);else if(mine==='T'&&theirs==='T')groups.dualTargets.push(j+1);else if(mine==='E'&&theirs==='E')groups.tieTargets.push(j+1);else groups.uncertainTargets.push(j+1)}}
+    renderChips('safeTargets',groups.safeTargets,'win');renderChips('dangerTargets',groups.dangerTargets,'lose');renderChips('dualTargets',groups.dualTargets,'warn');renderChips('tieTargets',groups.tieTargets,'draw');renderChips('uncertainTargets',groups.uncertainTargets,'unknown');
+    const pc=document.getElementById('playerCards');pc.innerHTML='';
+    if(!analysis?.valid){pc.innerHTML='<div class="card empty" style="grid-column:1/-1">当前记录存在矛盾，请删除或修正最近输入。</div>';return}
+    for(let i=0;i<N;i++){
+      const logicalPoss=logicalSetFromMask(analysis.masks[i]),fixed=logicalPoss.length===1,el=document.createElement('div');el.className='player-card'+(i+1===state.ownSeat?' me':'');
+      let ident='';
+      if(fixed)ident=displayCard(logicalPoss[0]);
+      else if(analysis.enumResult.exact&&analysis.enumResult.probs){const ranked=logicalPoss.map(id=>[id,logicalProb(i,id)]).sort((a,b)=>b[1]-a[1]);ident=ranked.slice(0,4).map(([id,p])=>`${shortCard(id)} ${(p*100).toFixed(p===1?0:1)}%`).join(' · ')}
+      else ident=logicalPoss.map(shortCard).join(' · ');
+      el.innerHTML=`<div class="phead"><div class="pnum">${i+1}号</div><div class="badge ${fixed?'fixed':''}">${fixed?'确定':logicalPoss.length+' 种'}</div></div><div class="identity ${fixed?'':'uncertain'}">${ident}</div>${!fixed?`<div class="smallprob">${analysis.enumResult.exact?'精确条件概率':'全局可行候选'}</div>`:''}${preyProbabilityHTML(i)}`;pc.appendChild(el);
+    }
+  }
+  function renderChips(id,arr,cls){const el=document.getElementById(id);el.innerHTML=arr.length?arr.map(x=>`<span class="chip ${cls}">${x}</span>`).join(''):'<span class="micro">—</span>'}
+  function renderIdentity(){
+    const t=document.getElementById('identityTable');let h='<thead><tr><th>玩家</th>'+logicalTypes.map(id=>`<th>${shortCard(id)}</th>`).join('')+'</tr></thead><tbody>';
+    if(analysis?.valid){for(let i=0;i<N;i++){h+=`<tr><td>${i+1}</td>`;const lposs=new Set(logicalSetFromMask(analysis.masks[i]));for(const id of logicalTypes){if(!lposs.has(id))h+='<td class="cell-no">·</td>';else if(lposs.size===1)h+='<td class="cell-fixed">100%</td>';else if(analysis.enumResult.exact&&analysis.enumResult.probs){const p=logicalProb(i,id);h+=`<td class="cell-prob">${(p*100).toFixed(p*100<10?1:0)}%</td>`}else h+='<td class="cell-possible">✓</td>'}h+='</tr>'}}
+    h+='</tbody>';t.innerHTML=h;document.getElementById('probHint').textContent=analysis?.valid&&analysis.enumResult.exact?'当前百分比为精确条件概率':'绿色=确定，✓=全局可能，·=不可能';
+  }
+  function renderHistory(){
+    const box=document.getElementById('historyList'),items=[];
+    if(state.ownSeat&&state.ownCard)items.push({type:'own',text:`${state.ownSeat}号 = ${displayCard(state.ownCard)}`,detail:'我的身份'});
+    for(const [s,c] of Object.entries(state.confirmed))if(+s!==state.ownSeat||c!==state.ownCard)items.push({type:'confirm',seat:+s,text:`${s}号 = ${displayCard(c)}`,detail:'确认身份'});
+    state.events.forEach((e,idx)=>items.push({type:'event',idx,text:`${e.attacker} → ${e.defender} = ${e.result}`,detail:e.result==='T'?'攻击成功':e.result==='F'?'攻击失败':'平局'}));
+    if(!items.length){box.innerHTML='<div class="empty">暂无记录</div>';return}
+    box.innerHTML=items.map((it,k)=>`<div class="event"><div class="event-index">${String(k+1).padStart(2,'0')}</div><div class="event-main">${it.text}<span>${it.detail}</span></div>${it.type==='event'?`<button class="x" data-del-event="${it.idx}">×</button>`:it.type==='confirm'?`<button class="x" data-del-confirm="${it.seat}">×</button>`:'<span></span>'}</div>`).join('');
+    box.querySelectorAll('[data-del-event]').forEach(b=>b.onclick=()=>{state.events.splice(+b.dataset.delEvent,1);analyze()});
+    box.querySelectorAll('[data-del-confirm]').forEach(b=>b.onclick=()=>{delete state.confirmed[b.dataset.delConfirm];analyze()});
+  }
+  function renderMatchupPlaceholder(){
+    const t=document.getElementById('matchupTable');if(matchupCache)return renderMatchupTable();
+    let h='<thead><tr><th>攻\\守</th>'+Array.from({length:N},(_,i)=>`<th>${i+1}</th>`).join('')+'</tr></thead><tbody>';
+    for(let i=0;i<N;i++){h+=`<tr><td>${i+1}</td>`;for(let j=0;j<N;j++)h+=`<td>${i===j?'—':'·'}</td>`;h+='</tr>'}h+='</tbody>';t.innerHTML=h;
+  }
+  function calcMatchup(){
+    if(!analysis?.valid)return toast('当前状态无解',true);
+    const btn=document.getElementById('calcMatchup');btn.disabled=true;btn.textContent='计算中…';
+    setTimeout(()=>{matchupCache=Array.from({length:N},()=>Array(N).fill('—'));for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(i!==j)matchupCache[i][j]=outcomeLabel(outcomePossibilities(i,j));renderMatchupTable();btn.disabled=false;btn.textContent='重新计算'},20);
+  }
+  function renderMatchupTable(){
+    const t=document.getElementById('matchupTable');let h='<thead><tr><th>攻\\守</th>'+Array.from({length:N},(_,i)=>`<th>${i+1}</th>`).join('')+'</tr></thead><tbody>';
+    for(let i=0;i<N;i++){h+=`<tr><td>${i+1}</td>`;for(let j=0;j<N;j++){if(i===j){h+='<td>—</td>';continue}const x=matchupCache[i][j],cls=x==='T'?'match-win':x==='F'?'match-lose':x==='E'?'match-draw':'match-mixed';h+=`<td class="${cls}">${x==='T'?'胜':x==='F'?'负':x==='E'?'平':'混合'}</td>`}h+='</tr>'}h+='</tbody>';t.innerHTML=h;
+  }
+  function syncInputs(){
+    document.getElementById('gameMode').value=String(state.mode||13);document.getElementById('ownSeat').value=state.ownSeat||'';document.getElementById('ownCard').value=state.ownCard||'';updateComputeUI();
+  }
+  function setupSelects(){
+    const seatOpts='<option value="" selected disabled>请选择</option>'+Array.from({length:N},(_,i)=>`<option value="${i+1}">${i+1}号</option>`).join('');
+    ['ownSeat','attacker','defender','confirmSeat'].forEach(id=>document.getElementById(id).innerHTML=seatOpts);
+    const cardOpts='<option value="" selected disabled>请选择</option>'+logicalTypes.map(id=>`<option value="${id}">${displayCard(id)}</option>`).join('');
+    ['ownCard','confirmCard'].forEach(id=>document.getElementById(id).innerHTML=cardOpts);
+  }
+  function addBattle(res){
+    const av=document.getElementById('attacker').value,bv=document.getElementById('defender').value;if(!av||!bv)return toast('请先选择攻击者和被攻击者',true);
+    const a=+av,b=+bv;if(a===b)return toast('攻击者和被攻击者不能相同',true);state.events.push({attacker:a,defender:b,result:res});analyze();toast(`已记录 ${a}→${b}=${res}`);
+  }
+  function parseBatch(text){
+    const events=[];
+    for(const raw of text.split(/\n+/)){const line=raw.replace(/^-\s*\[.\]\s*/,'').trim();if(!line)continue;const m=line.match(/(\d{1,2})\s*(?:\+|\-|→|>|,)\s*(\d{1,2})\s*(?:=)?\s*([TFE])/i);if(m){const a=+m[1],b=+m[2],r=m[3].toUpperCase();if(a>=1&&a<=N&&b>=1&&b<=N&&a!==b)events.push({attacker:a,defender:b,result:r})}}
+    return events;
+  }
+  function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`forest-${N}-game.json`;a.click();URL.revokeObjectURL(url)}
+  function switchMode(mode){
+    mode=+mode;if(mode===state.mode)return;
+    const hasData=state.ownSeat||state.ownCard||state.events.length||Object.keys(state.confirmed).length;
+    if(hasData&&!confirm(`切换到 ${mode} 人局将清空当前牌局记录，是否继续？`)){document.getElementById('gameMode').value=String(state.mode);return}
+    const computeLevel=state.computeLevel||'balanced';state=defaultState(mode,computeLevel);applyConfig(mode);setupSelects();syncInputs();analysis=null;matchupCache=null;mysticCache=null;analyze();toast(`已切换到 ${mode} 人局`);
+  }
+
+
+  function activateView(viewName){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===viewName));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    document.getElementById('view-'+viewName).classList.add('active');
+    const mystic=viewName==='mystic';
+    requestAnimationFrame(()=>document.body.classList.toggle('mystic-mode',mystic));
+  }
+  applyConfig(state.mode);setupSelects();syncInputs();document.body.classList.remove('mystic-mode');
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>activateView(b.dataset.view));
+  document.querySelectorAll('.result-btn').forEach(b=>b.onclick=()=>addBattle(b.dataset.res));
+  document.getElementById('gameMode').onchange=e=>switchMode(e.target.value);
+  document.getElementById('computeLevel').onchange=e=>{
+    const level=e.target.value;if(!COMPUTE_LEVELS[level])return;
+    state.computeLevel=level;updateComputeUI();analyze();toast(`运算强度：${COMPUTE_LEVELS[level].label}`);
+  };
+  document.getElementById('applyMe').onclick=()=>{const sv=document.getElementById('ownSeat').value,cv=document.getElementById('ownCard').value;if(!sv||!cv)return toast('请选择自己的座位和卡牌',true);state.ownSeat=+sv;state.ownCard=cv;analyze();toast('已更新我的身份')};
+  document.getElementById('addConfirm').onclick=()=>{const sv=document.getElementById('confirmSeat').value,c=document.getElementById('confirmCard').value;if(!sv||!c)return toast('请选择玩家和身份',true);const s=+sv;if(s===state.ownSeat&&state.ownCard&&c!==state.ownCard)return toast('该座位是你自己，身份与当前设置冲突',true);state.confirmed[s]=c;analyze();toast(`已确认 ${s}号 = ${displayCard(c)}`)};
+  document.getElementById('importBatch').onclick=()=>{const es=parseBatch(document.getElementById('batchInput').value);if(!es.length)return toast('没有识别到有效记录',true);state.events.push(...es);analyze();toast(`已加入 ${es.length} 条记录`)};
+  document.getElementById('clearBatch').onclick=()=>document.getElementById('batchInput').value='';
+  document.getElementById('resetGame').onclick=()=>{if(confirm('确定清空整局并恢复当前人数的默认状态？')){const mode=state.mode,computeLevel=state.computeLevel||'balanced';state=defaultState(mode,computeLevel);applyConfig(mode);setupSelects();syncInputs();analyze();toast('已重置')}};
+  document.getElementById('clearHistory').onclick=()=>{if(confirm('清空所有战斗和额外确认身份？')){state.events=[];state.confirmed={};analyze()}};
+  document.getElementById('undoBtn').onclick=()=>{if(state.events.length){state.events.pop();analyze();toast('已撤销最后一条战斗')}else toast('没有可撤销的战斗记录',true)};
+  document.getElementById('calcMatchup').onclick=calcMatchup;
+  document.getElementById('exportBtn').onclick=exportJSON;
+  document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();
+  document.getElementById('fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result),mode=CONFIGS[x.mode]?x.mode:13;state=x;state.mode=mode;if(!COMPUTE_LEVELS[state.computeLevel])state.computeLevel='balanced';applyConfig(mode);setupSelects();syncInputs();analyze();toast('导入成功')}catch{toast('JSON 文件无效',true)}};r.readAsText(f)};
+  analyze();
+})();
+</script>
+</body>
+</html>
